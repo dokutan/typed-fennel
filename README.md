@@ -1,6 +1,8 @@
 # typed-fennel
 Adding dynamic type checking to Fennel.
 
+Work in progress, has many missing features.
+
 ## Installation
 Clone this repository and place it in your package path, e.g. the directory containing your code.
 
@@ -44,12 +46,27 @@ The available primitive types are based on the normal Fennel/Lua types, with som
 - closed-file
 - any
 
+## Table types
+Tables of types can be used to describe tables:
+
+```fennel
+(local {: has-type?} (require :typed-fennel))
+
+(has-type? [1] [:number :number])     ; => false
+(has-type? [1 2] [:number :number])   ; => true
+(has-type? [1 2 3] [:number :number]) ; => true
+
+(has-type? [1 [2]] [:number [:number]]) ; => true
+
+(has-type? {:x 1 :y 2} {:x :number :y :number}) ; => true
+```
+
 ### Type functions
 Any function that takes at least one value and returns a truthy value can be used as a type.
 
 ```fennel
 (import-macros {: fn>} :typed-fennel)
-(local {: has-type? : union} (require :typed-fennel))
+(local {: has-type?} (require :typed-fennel))
 
 (fn weekday [value]
   "A weekday enum"
@@ -108,11 +125,13 @@ Union types can be constructed using the ``intersection`` function:
 ```
 
 ### Using expressions as types
-In the ``fn>`` macro any expression evaluating to a type can be used.
+In the ``fn>`` macro any expression evaluating to a type can be used, this allows e.g. generics to be implemented.
 When the macro is expanded, the expressions have access to the function parameters:
 
 ```fennel
 (import-macros {: fn>} :typed-fennel)
+
+(fn> tuple [a :any] [[(type a) (type a)]] [a a])
 
 (fn> assert-same-type [a :any b (type a)] [:boolean] true)
 (assert-same-type 1 2)   ; => true
