@@ -95,5 +95,25 @@
 
     new-fn))
 
+(fn let> [bindings & body]
+  "Type checked version of `let`."
+  (let [new-bindings `[typed# (require :typed-fennel)]
+        new-let `(let)]
 
-{:fn> fn>}
+    (assert-compile (sequence? bindings) "expected binding sequence")
+    (assert-compile (= 0 (% (length bindings) 3)) "expected name/type/value triples")
+
+    (for [i 1 (length bindings) 3]
+      (tset new-bindings (+ 1 (length new-bindings)) (. bindings i))
+      (tset new-bindings (+ 1 (length new-bindings)) (. bindings (+ 2 i)))
+      (tset new-bindings (+ 1 (length new-bindings)) `_#)
+      (tset new-bindings (+ 1 (length new-bindings))
+        `(assert
+           (typed#.has-type? ,(. bindings i) ,(. bindings (+ 1 i))))))
+
+    (tset new-let 2 new-bindings)
+    (tset new-let 3 `(do ,(unpack body)))
+
+    new-let))
+
+{: fn> : let>}
