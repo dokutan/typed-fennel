@@ -91,7 +91,7 @@
             (if ,has-name?
               (.. "fn> " ,(tostring name))
               "anonymous fn>")))
-         (table.unpack return#)))
+         (unpack return#)))
 
     new-fn))
 
