@@ -57,7 +57,15 @@
       (tset
         assertions
         (+ 1 (length assertions))
-        `(assert (typed#.has-type? ,(. arglist i) ,(. arglist (+ 1 i)))))
+        `(assert
+          (typed#.has-type? ,(. arglist i) ,(. arglist (+ 1 i)))
+          (..
+            "argument " ,(tostring (. arglist i)) " of "
+            (if ,has-name?
+              (.. "fn> " ,(tostring name) ":")
+              "anonymous fn>:")
+            " received " (type ,(. arglist i))
+            ", expected " (tostring ,(. arglist (+ 1 i))))))
       (tset
         new-arglist
         (+ 1 (length new-arglist))
@@ -76,7 +84,13 @@
       `(let [return-type# ,return-type
              return# [(do ,(unpack body))]]
          (local typed# (require :typed-fennel))
-         (assert (typed#.has-type? return# return-type#))
+         (assert
+          (typed#.has-type? return# return-type#)
+          (..
+            "wrong return type of "
+            (if ,has-name?
+              (.. "fn> " ,(tostring name))
+              "anonymous fn>")))
          (table.unpack return#)))
 
     new-fn))
