@@ -43,12 +43,9 @@
     (table.remove body 1)
 
     ;; remove docstring and metadata from body
-    (when (and docstring metadata)
-      (table.remove body 1)
+    (when (or docstring metadata)
       (table.remove body 1))
-    (when (or
-            (and (not docstring) metadata)
-            (and docstring (not metadata)))
+    (when (and docstring metadata)
       (table.remove body 1))
 
     ;; build list of argument type assertions and new arglist
@@ -79,25 +76,25 @@
 
     ;; construct fn
     (when has-name?
-      (tset new-fn (+ 1 (length new-fn)) name))
-    (tset new-fn (+ 1 (length new-fn)) new-arglist)
+      (table.insert new-fn name))
+    (table.insert new-fn new-arglist)
     (when docstring
-      (tset new-fn (+ 1 (length new-fn)) docstring))
+      (table.insert new-fn docstring))
     (when metadata
-      (tset new-fn (+ 1 (length new-fn)) metadata))
-    (tset new-fn (+ 1 (length new-fn)) assertions)
-    (tset new-fn (+ 1 (length new-fn))
+      (table.insert new-fn metadata))
+    (table.insert new-fn assertions)
+    (table.insert new-fn
       `(let [return-type# ,return-type
-             return# [(do ,(unpack body))]]
+             return-values# [(do ,(unpack body))]]
          (local typed# (require :typed-fennel))
          (assert
-          (typed#.has-type? return# return-type#)
+          (typed#.has-type? return-values# return-type#)
           (..
             "wrong return type of "
             (if ,has-name?
               (.. "fn> " ,(tostring name))
               "anonymous fn>")))
-         (table.unpack return#)))
+         (table.unpack return-values#)))
 
     new-fn))
 
@@ -110,10 +107,10 @@
     (assert-compile (= 0 (% (length bindings) 3)) "expected name/type/value triples")
 
     (for [i 1 (length bindings) 3]
-      (tset new-bindings (+ 1 (length new-bindings)) (. bindings i))
-      (tset new-bindings (+ 1 (length new-bindings)) (. bindings (+ 2 i)))
-      (tset new-bindings (+ 1 (length new-bindings)) `_#)
-      (tset new-bindings (+ 1 (length new-bindings))
+      (table.insert new-bindings (. bindings i))
+      (table.insert new-bindings (. bindings (+ 2 i)))
+      (table.insert new-bindings `_#)
+      (table.insert new-bindings
         `(assert
            (typed#.has-type? ,(. bindings i) ,(. bindings (+ 1 i))))))
 
