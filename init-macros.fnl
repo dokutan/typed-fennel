@@ -34,7 +34,6 @@
         new-fn      `(fn)]
 
     (assert-compile (= :table (type arglist)) "expected parameters table")
-    (assert-compile (= 0 (% (length arglist) 2)) "expected an even number of parameters/types")
     (assert-compile (= :table (type return-type)) "expected a return type table")
 
     ;; remove name, arglist and return type from body
@@ -53,23 +52,30 @@
       (table.remove body 1))
 
     ;; build list of argument type assertions and new arglist
-    (for [i 1 (length arglist) 2]
-      (tset
-        assertions
-        (+ 1 (length assertions))
-        `(assert
-          (typed#.has-type? ,(. arglist i) ,(. arglist (+ 1 i)))
-          (..
-            "argument " ,(tostring (. arglist i)) " of "
-            (if ,has-name?
-              (.. "fn> " ,(tostring name) ":")
-              "anonymous fn>:")
-            " received " (type ,(. arglist i))
-            ", expected " (tostring ,(. arglist (+ 1 i))))))
-      (tset
-        new-arglist
-        (+ 1 (length new-arglist))
-        (. arglist i)))
+    (var i 1)
+    (while (<= i (length arglist))
+      (if
+        (and (sym? (. arglist i)) (= "&" (. arglist i 1)))
+        (do
+          (table.insert new-arglist (. arglist i))
+          (set i (+ 1 i)))
+
+        ; else
+        (do
+          (assert-compile (. arglist (+ i 1)) "expected a type for every parameter")
+          (table.insert
+            assertions
+            `(assert
+              (typed#.has-type? ,(. arglist i) ,(. arglist (+ 1 i)))
+                (..
+                  "argument " ,(tostring (. arglist i)) " of "
+                  (if ,has-name?
+                    (.. "fn> " ,(tostring name) ":")
+                    "anonymous fn>:")
+                  " received " (type ,(. arglist i))
+                  ", expected " (tostring ,(. arglist (+ 1 i))))))
+          (table.insert new-arglist (. arglist i))
+          (set i (+ 2 i)))))
 
     ;; construct fn
     (when has-name?
@@ -91,7 +97,7 @@
             (if ,has-name?
               (.. "fn> " ,(tostring name))
               "anonymous fn>")))
-         (unpack return#)))
+         (table.unpack return#)))
 
     new-fn))
 
