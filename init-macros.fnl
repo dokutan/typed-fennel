@@ -153,4 +153,41 @@
 
     new-let))
 
-{: fn> : let>}
+(fn var-local> [form name typ value]
+  "Type checked version of `local` and `var`."
+  (let [assertions `(let [typed# (require :typed-fennel)])]
+
+    (if
+      (or (list? name) (sequence? name))
+      (do
+        (var j 1)
+        (each [_ n (ipairs name)]
+          (when (and (sym? n) (not (= :& (. n 1))))
+            (table.insert assertions
+              `(assert
+                  (typed#.has-type? ,n ,(. typ j))))
+            (set j (+ 1 j)))))
+
+      (sym? name)
+      (table.insert assertions
+        `(assert
+          (typed#.has-type? ,name ,typ)))
+
+      (= :table (type name)) ; kv table
+      (do
+        (var j 1)
+        (each [_ n (pairs name)]
+          (when (and (sym? n) (not (= :&as (. n 1))))
+            (table.insert assertions
+              `(assert
+                  (typed#.has-type? ,name ,(. typ j))))
+            (set j (+ 1 j))))))
+
+    `(values
+      (,(sym form) ,name ,value)
+      ,assertions)))
+
+(local var> (partial var-local> :var))
+(local local> (partial var-local> :local))
+
+{: fn> : let> : var> : local>}
