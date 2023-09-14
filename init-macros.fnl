@@ -109,10 +109,44 @@
     (for [i 1 (length bindings) 3]
       (table.insert new-bindings (. bindings i))
       (table.insert new-bindings (. bindings (+ 2 i)))
-      (table.insert new-bindings `_#)
-      (table.insert new-bindings
-        `(assert
-           (typed#.has-type? ,(. bindings i) ,(. bindings (+ 1 i))))))
+
+      (if
+        (or (list? (. bindings i)) (sequence? (. bindings i)))
+        (do
+          (var j 1)
+          (local assertions `(do))
+
+          (each [_ name (ipairs (. bindings i))]
+            (when (and (sym? name) (not (= :& (. name 1))))
+              (table.insert assertions
+                `(assert
+                    (typed#.has-type? ,name ,(. bindings (+ 1 i) j))))
+              (set j (+ 1 j))))
+
+          (table.insert new-bindings `_#)
+          (table.insert new-bindings assertions))
+
+        (sym? (. bindings i))
+        (do
+          (table.insert new-bindings `_#)
+          (table.insert new-bindings
+            `(assert
+              (typed#.has-type? ,(. bindings i) ,(. bindings (+ 1 i))))))
+
+        (= :table (type (. bindings i))) ; kv table
+        (do
+          (var j 1)
+          (local assertions `(do))
+
+          (each [_ name (pairs (. bindings i))]
+            (when (and (sym? name) (not (= :&as (. name 1))))
+              (table.insert assertions
+                `(assert
+                    (typed#.has-type? ,name ,(. bindings (+ 1 i) j))))
+              (set j (+ 1 j))))
+
+          (table.insert new-bindings `_#)
+          (table.insert new-bindings assertions))))
 
     (tset new-let 2 new-bindings)
     (tset new-let 3 `(do ,(unpack body)))
