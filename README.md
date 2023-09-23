@@ -1,7 +1,6 @@
 # typed-fennel
 Adding dynamic type checking to Fennel.
-
-Work in progress, has many missing features.
+This library contains replacements for common built-in forms that accept type annotations and perform type checking at runtime.
 
 ## Installation
 Clone this repository and place it in your package path, e.g. the directory containing your code.
@@ -25,6 +24,17 @@ git clone https://github.com/dokutan/typed-fennel
 (fn> inc [a :number] [:number] (+ a 1))
 (inc 1)   ; => 2
 (inc "1") ; => runtime error
+
+;; use let>, local> and var> for type checking
+(var> x :string "hello")
+(let> [a :number 10
+       b :number 20]
+  (+ a b))
+
+;; destructuring is supported by all macros
+(local> (a b) [:string :any] (foo))
+(fn [a & rest] [:any :table]
+  (print a))
 ```
 
 ## Type system
@@ -46,7 +56,7 @@ The available primitive types are based on the normal Fennel/Lua types, with som
 - closed-file
 - any
 
-## Table types
+### Table types
 Tables of types can be used to describe tables:
 
 ```fennel
@@ -108,7 +118,7 @@ Union types can be constructed using the ``union`` function:
 (has-type? "1" number-or-string) ; => true
 
 (fn> length2 [a (union :string :table)] [:integer] (length a))
-(length2 "123") ; => 3 
+(length2 "123") ; => 3
 (length2 123)   ; => runtime error
 ```
 
