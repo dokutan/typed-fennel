@@ -120,7 +120,9 @@
             (when (and (sym? name) (not (= :& (. name 1))))
               (table.insert assertions
                 `(assert
-                    (typed#.has-type? ,name ,(. bindings (+ 1 i) j))))
+                    (typed#.has-type? ,name ,(. bindings (+ 1 i) j))
+                    (.. "let> " ,(tostring name) ": received "
+                        (type ,name) ", expected " ,(tostring (. bindings (+ 1 i) j)))))
               (set j (+ 1 j))))
 
           (table.insert new-bindings `_#)
@@ -131,7 +133,9 @@
           (table.insert new-bindings `_#)
           (table.insert new-bindings
             `(assert
-              (typed#.has-type? ,(. bindings i) ,(. bindings (+ 1 i))))))
+              (typed#.has-type? ,(. bindings i) ,(. bindings (+ 1 i)))
+              ,(.. "let> " (tostring (. bindings i)) ": received " (type (. bindings (+ 2 i)))
+                   ", expected " (tostring (. bindings (+ 1 i)))))))
 
         (= :table (type (. bindings i))) ; kv table
         (do
@@ -142,7 +146,9 @@
             (when (and (sym? name) (not (= :&as (. name 1))))
               (table.insert assertions
                 `(assert
-                    (typed#.has-type? ,name ,(. bindings (+ 1 i) j))))
+                    (typed#.has-type? ,name ,(. bindings (+ 1 i) j))
+                    (.. "let> " ,(tostring name) ": received "
+                        (type ,name) ", expected " ,(tostring (. bindings (+ 1 i) j)))))
               (set j (+ 1 j))))
 
           (table.insert new-bindings `_#)
@@ -165,13 +171,17 @@
           (when (and (sym? n) (not (= :& (. n 1))))
             (table.insert assertions
               `(assert
-                  (typed#.has-type? ,n ,(. typ j))))
+                  (typed#.has-type? ,n ,(. typ j))
+                  (.. ,form " " ,(tostring n) ": received "
+                       (type ,n) ", expected " ,(tostring (. typ j)))))
             (set j (+ 1 j)))))
 
       (sym? name)
       (table.insert assertions
         `(assert
-          (typed#.has-type? ,name ,typ)))
+          (typed#.has-type? ,name ,typ)
+          ,(.. form " " (tostring name) ": received "
+               (type value) ", expected " (tostring typ))))
 
       (= :table (type name)) ; kv table
       (do
@@ -180,7 +190,9 @@
           (when (and (sym? n) (not (= :&as (. n 1))))
             (table.insert assertions
               `(assert
-                  (typed#.has-type? ,name ,(. typ j))))
+                  (typed#.has-type? ,n ,(. typ j))
+                  (.. ,form " " ,(tostring n) ": received "
+                      (type ,n) ", expected " ,(tostring (. typ j)))))
             (set j (+ 1 j))))))
 
     `(values
