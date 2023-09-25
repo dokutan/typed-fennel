@@ -1,3 +1,5 @@
+;; fennel-ls: macro-file
+
 (fn fn> [...]
   "Create a type checked function."
   (let [args        [...]
