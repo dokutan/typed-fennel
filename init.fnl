@@ -4,6 +4,13 @@
     (= :any t)
     true
 
+    (and
+      (= :string (type t))
+      (= :? (string.sub t 1 1)))
+    (or
+      (= nil value)
+      (has-type? value (string.sub t 2)))
+
     (or
       (= :integer t)
       (= :float t))
