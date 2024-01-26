@@ -56,6 +56,14 @@ The available primitive types are based on the normal Fennel/Lua types, with som
 - closed-file
 - any
 
+### Nilable types
+All primitive types can be prefixed with a question mark, e.g. `:?number`, to allow the corresponding value to be `nil`. This also works for `:?nil` and `:?any`, which has no effect on the type, but could be useful for annotating optional function parameters.
+```fennel
+(has-type? 1 :?number)   ; => true
+(has-type? nil :?number) ; => true
+(has-type? "1" :?number) ; => false
+```
+
 ### Table types
 Tables of types can be used to describe tables:
 
