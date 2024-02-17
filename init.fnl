@@ -49,6 +49,16 @@
                    _ t (ipairs types)]
           (or result (has-type? value t))))))
 
+(fn seq [T]
+  "Create a sequential list type from type `T`."
+  (fn [value]
+    (if (= :table (type value))
+      (accumulate [result true
+                   _ v (ipairs value)]
+        (and result (has-type? v T)))
+      false)))
+
 {: has-type?
  : intersection
- : union}
+ : union
+ : seq}

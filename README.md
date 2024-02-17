@@ -64,7 +64,7 @@ All primitive types can be prefixed with a question mark, e.g. `:?number`, to al
 (has-type? "1" :?number) ; => false
 ```
 
-### Table types
+### Table types / table schemas
 Tables of types can be used to describe tables:
 
 ```fennel
@@ -77,6 +77,18 @@ Tables of types can be used to describe tables:
 (has-type? [1 [2]] [:number [:number]]) ; => true
 
 (has-type? {:x 1 :y 2} {:x :number :y :number}) ; => true
+```
+
+### List/sequential types
+Use `(seq T)` to create a type that describes a sequential table containing 0 or more elements of type `T`.
+
+```fennel
+(local {: has-type? : seq} (require :typed-fennel))
+
+(has-type? [] (seq :number))        ; => true
+(has-type? [1] (seq :number))       ; => true
+(has-type? [1 2] (seq :number))     ; => true
+(has-type? [1 2 "3"] (seq :number)) ; => false
 ```
 
 ### Type functions
