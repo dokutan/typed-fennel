@@ -49,6 +49,12 @@
                    _ t (ipairs types)]
           (or result (has-type? value t))))))
 
+(fn enum [& vals]
+  "Create an enum type."
+  (let [vals (collect [_ v (ipairs vals)] (values v true))]
+    (fn [value]
+      (. vals value))))
+
 (fn seq [T]
   "Create a sequential list type from type `T`."
   (fn [value]
@@ -61,4 +67,5 @@
 {: has-type?
  : intersection
  : union
+ : enum
  : seq}

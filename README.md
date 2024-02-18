@@ -91,25 +91,33 @@ Use `(seq T)` to create a type that describes a sequential table containing 0 or
 (has-type? [1 2 "3"] (seq :number)) ; => false
 ```
 
+### Enums
+Use `enum` to create a type that allows a variable to take only one of the given values.
+
+```fennel
+(local {: has-type? : enum} (require :typed-fennel))
+
+;; A weekday enum
+(local weekday
+  (enum
+    :monday
+    :tuesday
+    :wednesday
+    :thursday
+    :friday
+    :saturday
+    :sunday))
+
+(has-type? :monday weekday) ; => true
+(has-type? :foo weekday)    ; => false
+```
+
 ### Type functions
 Any function that takes at least one value and returns a truthy value can be used as a type.
 
 ```fennel
 (import-macros {: fn>} :typed-fennel)
 (local {: has-type?} (require :typed-fennel))
-
-(fn weekday [value]
-  "A weekday enum"
-  (.
-    {:monday     true
-      :tuesday   true
-      :wednesday true
-      :thursday  true
-      :friday    true
-      :saturday  true
-      :sunday    true}
-    value))
-(has-type? :monday weekday) ; => true
 
 (fn positive-int [value]
   "A positive integer type"
