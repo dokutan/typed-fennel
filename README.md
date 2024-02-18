@@ -42,19 +42,19 @@ git clone https://github.com/dokutan/typed-fennel
 ### Primitive types
 The available primitive types are based on the normal Fennel/Lua types, with some additions. They are represented as strings.
 
-- nil
-- string
-- number
-- boolean
-- table
-- function
-- thread
-- userdata
-- integer
-- float
-- file
-- closed-file
-- any
+- `:nil`
+- `:string`
+- `:number`
+- `:boolean`
+- `:table`
+- `:function`
+- `:thread`
+- `:userdata`
+- `:integer`
+- `:float`
+- `:file`
+- `:closed-file`
+- `:any`
 
 ### Nilable types
 All primitive types can be prefixed with a question mark, e.g. `:?number`, to allow the corresponding value to be `nil`. This also works for `:?nil` and `:?any`, which has no effect on the type, but could be useful for annotating optional function parameters.
@@ -113,7 +113,7 @@ Use `enum` to create a type that allows a variable to take only one of the given
 ```
 
 ### Type functions
-Any function that takes at least one value and returns a truthy value can be used as a type.
+Any function (or table with the `__call` metamethod) that accepts one value and returns a truthy value can be used as a type.
 
 ```fennel
 (import-macros {: fn>} :typed-fennel)

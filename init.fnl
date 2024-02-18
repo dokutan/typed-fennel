@@ -22,13 +22,14 @@
     (= :closed-file t)
     (= "closed file" (io.type value))
 
+    (or (= :function (type t))
+        (?. (getmetatable t) :__call))
+    (if (t value) true false)
+
     (= :table (type t))
     (accumulate [result (= :table (type value))
                  k v (pairs t)]
       (and result (has-type? (. value k) v)))
-
-    (= :function (type t))
-    (if (t value) true false)
 
     :else
     (= t (type value))))
