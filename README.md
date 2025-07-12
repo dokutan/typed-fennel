@@ -151,7 +151,7 @@ Union types can be constructed using the ``union`` function:
 ```
 
 ### Intersection types
-Union types can be constructed using the ``intersection`` function:
+Intersection types can be constructed using the ``intersection`` function:
 
 ```fennel
 (import-macros {: fn>} :typed-fennel)
